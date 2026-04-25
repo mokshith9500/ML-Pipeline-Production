@@ -6,7 +6,6 @@
 
 > A production-grade machine learning pipeline demonstrating end-to-end MLOps practices for binary classification with real-world medical data.
 
-**Built for:** ScriptChain Health ML Internship Technical Interview
 
 ---
 
