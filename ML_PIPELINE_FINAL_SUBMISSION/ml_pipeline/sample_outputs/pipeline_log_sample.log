@@ -1,0 +1,60 @@
+2026-04-24 07:09:24 | INFO     | main                      | Configuration loaded from: config.yaml
+2026-04-24 07:09:24 | INFO     | src.ingestion             | ============================================================
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   STAGE 1: DATA INGESTION
+2026-04-24 07:09:24 | INFO     | src.ingestion             | ============================================================
+2026-04-24 07:09:24 | INFO     | src.ingestion             | Found 2 file(s) to ingest:
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   → churn_data_2026-04-23.csv
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   → churn_data_2026-04-24.csv
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   ✓ Loaded 'churn_data_2026-04-23.csv' — 808 rows, 12 columns
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   ✓ Loaded 'churn_data_2026-04-24.csv' — 959 rows, 12 columns
+2026-04-24 07:09:24 | INFO     | src.ingestion             | Total rows ingested: 1,767
+2026-04-24 07:09:24 | INFO     | src.ingestion             | Total columns: 12
+2026-04-24 07:09:24 | INFO     | src.ingestion             |   STATUS: INGESTION COMPLETE
+2026-04-24 07:09:24 | INFO     | src.ingestion             | ------------------------------------------------------------
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ============================================================
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   STAGE 2: DATA CLEANING
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ============================================================
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Input shape: 1,767 rows × 12 cols
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ► Step 1: Removing duplicates...
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Duplicates removed: 17 rows (1.0%)
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ► Step 2: Fixing data types...
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   dtype fix: 'customer_id' → str → object
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   dtype fix: 'num_products' → int64 → float64
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   dtype fix: 'num_support_calls' → int64 → float64
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ► Step 3: Handling missing values...
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Total missing values before fill: 117
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Filled 'age': 36 nulls → strategy='median', value=40.9
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Filled 'total_charges': 23 nulls → strategy='mean', value=1916.53920671685
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Filled 'avg_session_duration': 58 nulls → strategy='mean', value=19.139420803782507
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Total missing values after fill: 0
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ► Step 4: Detecting and capping outliers...
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'age': 4 values → range [2.69, 80.04]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'tenure_months': 4 values → range [-24.84, 86.79]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'monthly_charges': 3 values → range [-2.04, 129.42]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'total_charges': 17 values → range [-2068.09, 5901.17]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'num_support_calls': 42 values → range [-3.57, 6.90]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'last_login_days': 40 values → range [-40.17, 72.87]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Outliers capped in 'avg_session_duration': 2 values → range [-12.74, 51.02]
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Total outlier values capped: 112
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ► Step 5: Dropping pipeline metadata columns...
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Dropped metadata columns: ['__source_file', '__ingestion_timestamp']
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   Output shape: 1,750 rows × 10 cols | Rows removed: 17
+2026-04-24 07:09:24 | INFO     | src.cleaning              |   STATUS: CLEANING COMPLETE
+2026-04-24 07:09:24 | INFO     | src.cleaning              | ------------------------------------------------------------
+2026-04-24 07:09:24 | INFO     | main                      | ============================================================
+2026-04-24 07:09:24 | INFO     | main                      |   SAVING PROCESSED DATA
+2026-04-24 07:09:24 | INFO     | main                      | ============================================================
+2026-04-24 07:09:24 | INFO     | main                      |   Processed data saved → data/processed/processed_20260424_20260424_070924.csv
+2026-04-24 07:09:24 | INFO     | main                      |   Shape: 1,750 rows × 10 columns
+2026-04-24 07:09:24 | INFO     | main                      |   STATUS: DATA SAVED
+2026-04-24 07:09:24 | INFO     | main                      | ------------------------------------------------------------
+2026-04-24 07:09:24 | INFO     | src.validation            | ============================================================
+2026-04-24 07:09:24 | INFO     | src.validation            |   STAGE 3: DATA VALIDATION
+2026-04-24 07:09:24 | INFO     | src.validation            | ============================================================
+2026-04-24 07:09:24 | INFO     | src.validation            | ► Layer 1: Schema Validation
+2026-04-24 07:09:24 | INFO     | src.validation            |   ✓ All required columns present.
+2026-04-24 07:09:24 | INFO     | src.validation            |   ✓ Schema validation passed.
+2026-04-24 07:09:24 | INFO     | src.validation            | ► Layer 2: Data Quality Checks
+2026-04-24 07:09:24 | INFO     | src.validation            |   ✓ Row count OK: 1,750 rows
+2026-04-24 07:09:24 | INFO     | src.validation            |   ✓ Missing value check passed (threshold: 10%)
+2026-04-24 07:09:24 | INFO     | src.validation            |   ✓ Duplicate check passed: 0 duplicates (0.0%)

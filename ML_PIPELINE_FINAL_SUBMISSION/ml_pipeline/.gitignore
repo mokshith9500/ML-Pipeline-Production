@@ -1,0 +1,64 @@
+# =============================================================================
+# .gitignore — ML Pipeline
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Data — raw data not committed (too large; use DVC or similar in production)
+data/raw/*.csv
+
+# Processed data — generated at runtime
+data/processed/*.csv
+data/processed_files.json
+data/baseline_stats.json
+
+# Models — generated at runtime (use model registry in production)
+models/*.pkl
+models/metrics_registry.json
+
+# Logs — generated at runtime
+logs/*.log
+logs/*.json
+
+# Keep empty directories
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!models/.gitkeep
+!logs/.gitkeep
+
+# Environment variables
+.env
+*.env
+
+# Sample outputs ARE committed (show recruiters real results)
+!sample_outputs/
+
+# Sample raw data IS committed so pipeline runs out of the box
+!data/raw/churn_data_*.csv

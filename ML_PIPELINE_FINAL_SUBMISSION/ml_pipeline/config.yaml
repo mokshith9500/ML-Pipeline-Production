@@ -1,0 +1,250 @@
+# =============================================================================
+# ML Pipeline Configuration
+# Binary Classification | Production-Style ML Pipeline
+# Dataset: Pima Indians (real medical data)
+# =============================================================================
+# All pipeline behavior is controlled from this file.
+# No hardcoded values exist in the codebase.
+
+# -----------------------------------------------------------------------------
+# Paths
+# -----------------------------------------------------------------------------
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  models_dir: "models"
+  logs_dir: "logs"
+  baseline_stats: "data/baseline_stats.json"   # Used for drift detection
+
+# -----------------------------------------------------------------------------
+# Data Schema
+# Required columns and their expected dtypes
+# Dataset: Pima Indians Diabetes Dataset (768 patients, 9 features)
+# Target: Outcome (0 = No Diabetes, 1 = Diabetes)
+# -----------------------------------------------------------------------------
+schema:
+  required_columns:
+    - Pregnancies
+    - Glucose
+    - BloodPressure
+    - SkinThickness
+    - Insulin
+    - BMI
+    - DiabetesPedigreeFunction
+    - Age
+    - Outcome
+
+  column_types:
+    Pregnancies: "int64"
+    Glucose: "int64"
+    BloodPressure: "int64"
+    SkinThickness: "int64"
+    Insulin: "int64"
+    BMI: "float64"
+    DiabetesPedigreeFunction: "float64"
+    Age: "int64"
+    Outcome: "int64"
+
+# -----------------------------------------------------------------------------
+# Validation Thresholds
+# -----------------------------------------------------------------------------
+validation:
+  max_missing_pct: 0.15          # Max 15% missing values per column allowed (after zero-replacement)
+  max_duplicate_pct: 0.05        # Max 5% duplicate rows allowed
+  min_rows: 50                   # Minimum rows required to proceed
+  outcome_values: [0, 1]         # Target must be strictly binary (0=No Diabetes, 1=Diabetes)
+
+  # Value range constraints (medical validity checks)
+  # Note: Zeros in medical data often indicate missing values
+  value_ranges:
+    Pregnancies:
+      min: 0
+      max: 20
+    Glucose:
+      min: 44      # Below this is medically concerning (hypoglycemia)
+      max: 250     # Above this is severe hyperglycemia
+    BloodPressure:
+      min: 24      # Extremely low but possible
+      max: 200     # Severe hypertension
+    SkinThickness:
+      min: 7       # Minimum realistic skinfold thickness
+      max: 100
+    Insulin:
+      min: 14      # Minimum detectable insulin level
+      max: 846     # Maximum observed in dataset
+    BMI:
+      min: 18.0    # Underweight threshold
+      max: 70.0    # Severe obesity
+    DiabetesPedigreeFunction:
+      min: 0.078
+      max: 2.50
+    Age:
+      min: 21
+      max: 100
+
+  # Columns where zero values indicate missing data (medically impossible)
+  zero_as_missing_columns:
+    - Glucose
+    - BloodPressure
+    - SkinThickness
+    - Insulin
+    - BMI
+
+# -----------------------------------------------------------------------------
+# Cleaning Parameters
+# -----------------------------------------------------------------------------
+cleaning:
+  outlier_z_threshold: 3.5       # Z-score threshold for outlier detection (relaxed for medical data)
+  
+  # First convert zeros to NaN for these columns (medical impossibilities)
+  zero_as_missing_columns:
+    - Glucose
+    - BloodPressure
+    - SkinThickness
+    - Insulin
+    - BMI
+  
+  # Per-column fill strategy for missing values
+  fill_strategy:
+    Pregnancies: "mode"
+    Glucose: "median"
+    BloodPressure: "median"
+    SkinThickness: "median"
+    Insulin: "median"
+    BMI: "median"
+    DiabetesPedigreeFunction: "median"
+    Age: "median"
+
+# -----------------------------------------------------------------------------
+# Model Training Parameters
+# -----------------------------------------------------------------------------
+training:
+  target_column: "Outcome"
+  test_size: 0.2
+  random_state: 42
+  
+  # Multi-model configuration
+  models_to_train:
+    - logistic_regression
+    - random_forest
+    - xgboost
+    - lightgbm
+  
+  # Model-specific parameters
+  logistic_regression:
+    max_iter: 1000
+    C: 1.0
+    solver: "lbfgs"
+    class_weight: "balanced"
+  
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+    class_weight: "balanced"
+    random_state: 42
+  
+  xgboost:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    scale_pos_weight: 1.5  # Handle class imbalance
+    random_state: 42
+  
+  lightgbm:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    num_leaves: 31
+    class_weight: "balanced"
+    random_state: 42
+  
+  # SHAP explainability
+  generate_shap_plots: true
+  shap_sample_size: 100  # Sample size for SHAP analysis (faster computation)
+
+# -----------------------------------------------------------------------------
+# Drift Detection Parameters
+# -----------------------------------------------------------------------------
+drift:
+  enabled: true
+  ks_test_pvalue_threshold: 0.05   # KS test p-value; below = drift detected
+  columns_to_monitor:
+    - Glucose
+    - BloodPressure
+    - BMI
+    - Age
+    - Insulin
+    - DiabetesPedigreeFunction
+
+# -----------------------------------------------------------------------------
+# Pipeline Behavior
+# -----------------------------------------------------------------------------
+pipeline:
+  retry_attempts: 3              # Number of retry attempts on failure
+  retry_delay_seconds: 2         # Delay between retries
+  save_validation_report: true   # Save JSON validation report to logs/
+  log_level: "INFO"              # DEBUG, INFO, WARNING, ERROR
+
+# =============================================================================
+# AUTOMATION & LIVE DATA CONFIGURATION
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Live Data Sources
+# Choose one: api, database, or s3
+# -----------------------------------------------------------------------------
+live_data:
+  # API Configuration
+  api:
+    url: "https://api.yourcompany.com/patient-data"
+    auth_token: "your_bearer_token_here"
+    params:
+      days: 1  # Fetch last N days of data
+  
+  # Database Configuration (PostgreSQL/MySQL)
+  database:
+    type: "postgresql"  # or "mysql"
+    host: "db.yourcompany.com"
+    port: 5432
+    database: "health_records"
+    user: "ml_pipeline"
+    password: "your_db_password"
+    query: |
+      SELECT * FROM patient_records 
+      WHERE created_date = CURRENT_DATE
+      AND data_quality_flag = 1
+  
+  # AWS S3 Configuration
+  s3:
+    bucket: "scriptchain-patient-data"
+    prefix: "daily-records/"
+    aws_access_key: "your_aws_key"
+    aws_secret_key: "your_aws_secret"
+    region: "us-east-1"
+
+# -----------------------------------------------------------------------------
+# Email Alerts
+# -----------------------------------------------------------------------------
+alerts:
+  email:
+    enabled: true
+    smtp_server: "smtp.gmail.com"
+    smtp_port: 587
+    from_email: "ml-pipeline@yourcompany.com"
+    password: "your_gmail_app_password"  # Use app-specific password for Gmail
+    to_emails:
+      - "data-team@yourcompany.com"
+      - "your-email@company.com"
+
+# -----------------------------------------------------------------------------
+# Auto-Deployment
+# -----------------------------------------------------------------------------
+deployment:
+  enabled: true
+  production_model_path: "models/production/current_model.pkl"
+  min_roc_auc: 0.80  # Only deploy if ROC-AUC >= this
+  min_f1_score: 0.65  # AND F1 >= this

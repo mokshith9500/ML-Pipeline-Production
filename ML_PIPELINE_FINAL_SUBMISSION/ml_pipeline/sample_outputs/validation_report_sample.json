@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "run_timestamp": "2026-04-24T07:09:24.933661",
+  "errors": [],
+  "warnings": [
+    "Column 'customer_id': minor dtype variation 'str' (expected 'object') \u2014 acceptable.",
+    "Column 'churn': minor dtype variation 'float64' (expected 'int64') \u2014 acceptable."
+  ],
+  "metrics": {
+    "total_rows": 1750,
+    "missing_pct_per_column": {
+      "customer_id": 0.0,
+      "age": 0.0,
+      "tenure_months": 0.0,
+      "monthly_charges": 0.0,
+      "total_charges": 0.0,
+      "num_products": 0.0,
+      "num_support_calls": 0.0,
+      "last_login_days": 0.0,
+      "avg_session_duration": 0.0,
+      "churn": 0.0
+    },
+    "overall_missing_pct": 0.0,
+    "duplicate_rows": 0,
+    "duplicate_pct": 0.0,
+    "churn_unique_values": [
+      0,
+      1
+    ],
+    "churn_rate": 0.22,
+    "churn_class_distribution": {
+      "0": 1365,
+      "1": 385
+    },
+    "range_violations": {},
+    "drift_detection": {
+      "baseline_created": true
+    }
+  }
+}
